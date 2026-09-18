@@ -30,3 +30,8 @@ wss.on("connection", (socket, req) => {
 });
 
 console.log("Ws server is live on Port 8080");
+
+/* How did a server ran without express?
+-- All the heavy lifting s done by ws library, when u pass a port to a ws server it realizes ,there is no
+http server to hijack so it spins its own . It creates something known as a zombie only exists to listen 
+to that handshake  */

@@ -1,6 +1,9 @@
 import { WebSocketServer, WebSocket } from "ws";
 
 const wss = new WebSocketServer({ port: 8080 });
+//everytime a new client connects the ws fires a connecion with this code
+//and and gives you a fresh socket object for that one client
+// this socket object is an instace of WebSocket class imported from ws library
 
 //Connection Event- The first event after the handshake that is established
 //in the above code
@@ -11,7 +14,10 @@ wss.on("connection", (socket, req) => {
   //from the upgrade request
 
   socket.on("message", (rawData) => {
-    const message = rawData.toString();
+    //socket is an instace of the WebSocket class
+    const message = rawData.toString(); //turns your JS object(rawData) into a JSON string,
+    //because WebSocket frames send raw strings/bytes, not JS objects directly.
+
     console.log({ rawData });
 
     //After this we have the access to all the clients

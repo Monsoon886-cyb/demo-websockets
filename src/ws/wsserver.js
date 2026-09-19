@@ -1,5 +1,6 @@
 import { WebSocket, WebSocketServer } from "ws";
 import { json } from "zod";
+import { wsArcjet, isRateLimitDenial } from "../arcjet.js";
 
 function sendJson(socket, payload) {
   if (socket.readyState !== WebSocket.OPEN) return;
@@ -22,10 +23,37 @@ export function attachWebSocketServer(server) {
     maxPayload: 1024 * 1024,
   });
 
-  wss.on("connection", (socket) => {
-    sendJson(socket, { type: "Welcome" });
-
+  wss.on("connection", async (socket, req) => {
     socket.on("error", console.error);
+
+    if (wsArcjet) {
+      try {
+        // TEMP: detectBot requires a user-agent header; remove this fallback before production.
+        req.headers["user-agent"] ??= "unknown";
+
+        const decision = await wsArcjet.protect(req);
+
+        if (decision.isErrored()) {
+          console.error("Arcjet decision errored", decision.reason);
+          socket.close(1011, "Server security error");
+          return;
+        }
+
+        if (decision.isDenied()) {
+          const rateLimited = isRateLimitDenial(decision);
+          const code = rateLimited ? 1013 : 1008;
+          const reason = rateLimited ? "Rate limit exceeded" : "Access denied";
+
+          socket.close(code, reason);
+          return;
+        }
+      } catch (err) {
+        console.error("WS connection error", err);
+        socket.close(1011, "Server security error");
+        return;
+      }
+    }
+    sendJson(socket, { type: "Welcome" });
   });
 
   function broadcastMatchCreated(match) {

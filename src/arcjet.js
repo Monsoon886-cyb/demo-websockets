@@ -1,0 +1,75 @@
+import "dotenv/config";
+import arcjet, { detectBot, shield, slidingWindow } from "@arcjet/node";
+
+const arcjetKey = process.env.ARCJET_KEY;
+const arcjetMode =
+  process.env.ARCJET_ENV === "development" ? "DRY_RUN" : "LIVE";
+
+if (!arcjetKey) {
+  console.warn(
+    "ARCJET_KEY environment variable is missing; Arcjet protection is disabled.",
+  );
+}
+
+export const httpArcjet = arcjetKey
+  ? arcjet({
+      key: arcjetKey,
+      rules: [
+        shield({ mode: arcjetMode }),
+        // detectBot({
+        //   mode: arcjetMode,
+        //   allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:PREVIEW"],
+        // }),
+        slidingWindow({ mode: arcjetMode, interval: "10s", max: 50 }),
+      ],
+    })
+  : null;
+
+export const wsArcjet = arcjetKey
+  ? arcjet({
+      key: arcjetKey,
+      rules: [
+        shield({ mode: arcjetMode }),
+        detectBot({
+          mode: arcjetMode,
+          allow: ["CATEGORY:SEARCH_ENGINE", "CATEGORY:PREVIEW"],
+        }),
+        slidingWindow({ mode: arcjetMode, interval: "2s", max: 5 }),
+      ],
+    })
+  : null;
+
+export function isRateLimitDenial(decision) {
+  return decision.reason.isRateLimit();
+}
+
+export function securityMiddleware() {
+  return async (req, res, next) => {
+    if (!httpArcjet) return next();
+
+    try {
+      // TEMP: detectBot requires a user-agent header; remove this fallback before production.
+      req.headers["user-agent"] ??= "unknown";
+
+      const decision = await httpArcjet.protect(req);
+
+      if (decision.isErrored()) {
+        console.error("Arcjet decision errored", decision.reason);
+        return res.status(503).json({ error: "Service Unavailable" });
+      }
+
+      if (decision.isDenied()) {
+        if (isRateLimitDenial(decision)) {
+          return res.status(429).json({ error: "Too many requests." });
+        }
+
+        return res.status(403).json({ error: "Forbidden." });
+      }
+    } catch (e) {
+      console.error("Arcjet middleware error", e);
+      return res.status(503).json({ error: "Service Unavailable" });
+    }
+
+    next();
+  };
+}

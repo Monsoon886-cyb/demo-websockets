@@ -70,13 +70,19 @@ matchRouter.post("/", async (req, res) => {
       })
       .returning();
 
+    const broadcast = req.app.locals.broadcastMatchCreated;
+    if (broadcast) {
+      broadcast(event);
+    }
+
     res.status(201).json({
       status: "success",
       data: event,
     });
   } catch (err) {
     res.status(500).json({
-      err,
+      status: "error",
+      message: err.message,
     });
   }
 });

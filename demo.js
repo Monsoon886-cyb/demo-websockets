@@ -15,8 +15,7 @@ wss.on("connection", (socket, req) => {
 
   socket.on("message", (rawData) => {
     //socket is an instace of the WebSocket class
-    const message = rawData.toString(); //turns your JS object(rawData) into a JSON string,
-    //because WebSocket frames send raw strings/bytes, not JS objects directly.
+    const message = rawData.toString(); //rawData contains WebSocket frame data, not a JavaScript object. .toString() converts the frame data to text; it does not serialize an object to JSON. Update the comment to match the ws message API.
 
     console.log({ rawData });
 

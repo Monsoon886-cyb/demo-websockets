@@ -16,7 +16,7 @@ matchRouter.get("/", async (req, res) => {
   const parsed = listMatchesQuerySchema.safeParse(req.query);
 
   if (!parsed.success) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       message: "Invalid Query",
       details: parsed.error.issues,
@@ -47,7 +47,7 @@ matchRouter.post("/", async (req, res) => {
   const parsed = createMatchSchema.safeParse(req.body);
 
   if (!parsed.success) {
-    res.status(400).json({
+    return res.status(400).json({
       status: "fail",
       message: "Invalid Payload",
       details: parsed.error.issues,

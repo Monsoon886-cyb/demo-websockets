@@ -80,9 +80,10 @@ matchRouter.post("/", async (req, res) => {
       data: event,
     });
   } catch (err) {
+    console.log(err.message, err);
     res.status(500).json({
       status: "error",
-      message: err.message,
+      message: "Unable to create match",
     });
   }
 });

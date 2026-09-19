@@ -53,6 +53,11 @@ export function securityMiddleware() {
 
       const decision = await httpArcjet.protect(req);
 
+      if (decision.isErrored()) {
+        console.error("Arcjet decision errored", decision.reason);
+        return res.status(503).json({ error: "Service Unavailable" });
+      }
+
       if (decision.isDenied()) {
         if (isRateLimitDenial(decision)) {
           return res.status(429).json({ error: "Too many requests." });

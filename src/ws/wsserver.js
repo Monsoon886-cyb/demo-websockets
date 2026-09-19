@@ -33,6 +33,12 @@ export function attachWebSocketServer(server) {
 
         const decision = await wsArcjet.protect(req);
 
+        if (decision.isErrored()) {
+          console.error("Arcjet decision errored", decision.reason);
+          socket.close(1011, "Server security error");
+          return;
+        }
+
         if (decision.isDenied()) {
           const rateLimited = isRateLimitDenial(decision);
           const code = rateLimited ? 1013 : 1008;

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { desc, eq } from "drizzle-orm";
-import { commentary } from "../db/schema.js";
+import { commentary, matches } from "../db/schema.js";
 import {
   createCommentarySchema,
   listCommentaryQuerySchema,
@@ -79,6 +79,19 @@ commentaryRouter.post("/", async (req, res) => {
   }
 
   try {
+    const [match] = await db
+      .select({ id: matches.id })
+      .from(matches)
+      .where(eq(matches.id, parsedParams.data.id))
+      .limit(1);
+
+    if (!match) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Match not found",
+      });
+    }
+
     const [event] = await db
       .insert(commentary)
       .values({

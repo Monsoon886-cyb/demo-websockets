@@ -1,4 +1,6 @@
 import express from "express";
+import AgentAPI from "apminsight";
+AgentAPI.config();
 
 import { matchRouter } from "./Routes/matchesRouter.js";
 import { securityMiddleware } from "./arcjet.js";

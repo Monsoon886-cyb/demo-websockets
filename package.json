@@ -16,6 +16,7 @@
   "dependencies": {
     "@arcjet/inspect": "^1.13.0",
     "@arcjet/node": "^1.13.0",
+    "apminsight": "^5.5.1",
     "dotenv": "^18.0.0",
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",

@@ -4,6 +4,9 @@ import { wsArcjet, isRateLimitDenial } from "../arcjet.js";
 //Create a new Map for storing matchId and its subscribed users
 const matchSubscriber = new Map();
 
+//Maximum number of matches a single socket may subscribe to
+const MAX_SUBSCRIPTIONS_PER_SOCKET = 50;
+
 //Create a utils function for subscribing
 function subscribe(matchId, socket) {
   //  if(!matchId || !socket){
@@ -78,10 +81,20 @@ function handleMessage(socket, data) {
   if (message?.type === "subscribe" || message?.type === "subscribed") {
     const matchId = Number(message.matchId);
 
-    if (!Number.isInteger(matchId)) {
+    if (!Number.isSafeInteger(matchId) || matchId <= 0) {
       return sendJson(socket, {
         type: "error",
-        message: "subscribe requires an integer matchId",
+        message: "subscribe requires a positive integer matchId",
+      });
+    }
+
+    if (
+      !socket.subscriptions.has(matchId) &&
+      socket.subscriptions.size >= MAX_SUBSCRIPTIONS_PER_SOCKET
+    ) {
+      return sendJson(socket, {
+        type: "error",
+        message: `subscription limit of ${MAX_SUBSCRIPTIONS_PER_SOCKET} reached`,
       });
     }
 
@@ -94,10 +107,10 @@ function handleMessage(socket, data) {
   if (message?.type === "unsubscribe" || message?.type === "unsubscribed") {
     const matchId = Number(message.matchId);
 
-    if (!Number.isInteger(matchId)) {
+    if (!Number.isSafeInteger(matchId) || matchId <= 0) {
       return sendJson(socket, {
         type: "error",
-        message: "unsubscribe requires an integer matchId",
+        message: "unsubscribe requires a positive integer matchId",
       });
     }
 
@@ -121,9 +134,6 @@ export function attachWebSocketServer(server) {
 
     if (wsArcjet) {
       try {
-        // TEMP: detectBot requires a user-agent header; remove this fallback before production.
-        req.headers["user-agent"] ??= "unknown";
-
         const decision = await wsArcjet.protect(req);
 
         if (decision.isErrored()) {

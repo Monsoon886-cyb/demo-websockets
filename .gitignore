@@ -143,3 +143,7 @@ vite.config.ts.timestamp-*
 .vite/
 
 demo.js
+
+# APM Insight agent runtime data
+apminsightdata/
+apminsightnode.json

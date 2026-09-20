@@ -1,0 +1,129 @@
+{
+  "route": "POST /matches/:id/commentary",
+  "note": "Replace :id with an existing match's id (must be a positive integer that exists in the matches table).",
+  "valid": [
+    {
+      "minute": 1,
+      "sequence": 1,
+      "period": "1H",
+      "eventType": "kickoff",
+      "team": "Home",
+      "message": "The referee blows the whistle, and we are underway!",
+      "tags": ["kickoff"]
+    },
+    {
+      "minute": 12,
+      "sequence": 2,
+      "period": "1H",
+      "eventType": "shot_on_target",
+      "actor": "Marcus Rashford",
+      "team": "Home",
+      "message": "Rashford cuts inside and fires a low shot, saved by the keeper!",
+      "metadata": { "xG": 0.18, "shotType": "left-foot" },
+      "tags": ["shot", "save"]
+    },
+    {
+      "minute": 23,
+      "sequence": 3,
+      "period": "1H",
+      "eventType": "goal",
+      "actor": "Erling Haaland",
+      "team": "Away",
+      "message": "GOAL! Haaland taps in from close range after a defensive mix-up.",
+      "metadata": { "assistedBy": "Kevin De Bruyne", "bodyPart": "right-foot" },
+      "tags": ["goal", "highlight"]
+    },
+    {
+      "minute": 31,
+      "sequence": 4,
+      "period": "1H",
+      "eventType": "yellow_card",
+      "actor": "Declan Rice",
+      "team": "Home",
+      "message": "Yellow card shown for a late challenge in midfield.",
+      "tags": ["card"]
+    },
+    {
+      "minute": 45,
+      "sequence": 5,
+      "period": "1H",
+      "eventType": "half_time",
+      "message": "The referee brings the first half to a close. 0-1 at the break.",
+      "tags": ["half-time"]
+    },
+    {
+      "minute": 46,
+      "sequence": 6,
+      "period": "2H",
+      "eventType": "substitution",
+      "actor": "Phil Foden",
+      "team": "Home",
+      "message": "Substitution for the home side at the start of the second half.",
+      "metadata": { "playerOut": "Jack Grealish" },
+      "tags": ["substitution"]
+    },
+    {
+      "minute": 90,
+      "sequence": 7,
+      "period": "2H",
+      "eventType": "full_time",
+      "message": "Full time! The away side hold on for a narrow 1-0 victory.",
+      "tags": ["full-time"]
+    },
+    {
+      "sequence": 8,
+      "eventType": "note",
+      "message": "Minimal payload example: only the required fields (sequence, eventType, message) are provided."
+    }
+  ],
+  "invalid": [
+    {
+      "description": "missing required 'message' field",
+      "body": {
+        "sequence": 1,
+        "eventType": "goal"
+      }
+    },
+    {
+      "description": "missing required 'eventType' field",
+      "body": {
+        "sequence": 2,
+        "message": "Missing event type"
+      }
+    },
+    {
+      "description": "sequence is not an integer",
+      "body": {
+        "sequence": "not-a-number",
+        "eventType": "goal",
+        "message": "Bad sequence value"
+      }
+    },
+    {
+      "description": "negative minute (must be nonnegative)",
+      "body": {
+        "minute": -5,
+        "sequence": 3,
+        "eventType": "goal",
+        "message": "Negative minute"
+      }
+    },
+    {
+      "description": "empty message string (min length 1)",
+      "body": {
+        "sequence": 4,
+        "eventType": "goal",
+        "message": ""
+      }
+    },
+    {
+      "description": "tags is not an array of strings",
+      "body": {
+        "sequence": 5,
+        "eventType": "goal",
+        "message": "Bad tags",
+        "tags": "goal,highlight"
+      }
+    }
+  ]
+}

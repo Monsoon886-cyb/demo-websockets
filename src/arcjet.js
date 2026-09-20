@@ -48,9 +48,6 @@ export function securityMiddleware() {
     if (!httpArcjet) return next();
 
     try {
-      // TEMP: detectBot requires a user-agent header; remove this fallback before production.
-      req.headers["user-agent"] ??= "unknown";
-
       const decision = await httpArcjet.protect(req);
 
       if (decision.isErrored()) {

@@ -2,6 +2,7 @@ import express from "express";
 
 import { matchRouter } from "./Routes/matchesRouter.js";
 import { securityMiddleware } from "./arcjet.js";
+import { commentaryRouter } from "./Routes/commentary.js";
 
 const app = express();
 
@@ -14,5 +15,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/match", matchRouter);
+app.use("/matches/:id/commentary", commentaryRouter);
 
 export default app;

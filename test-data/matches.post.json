@@ -1,0 +1,108 @@
+{
+  "route": "POST /matches",
+  "note": "startTime and endTime must be ISO 8601 datetime strings, and endTime must be after startTime. homeScore/awayScore default to 0 if omitted. status is derived server-side from startTime/endTime via getMatchStatus.",
+  "valid": [
+    {
+      "sport": "Football",
+      "homeTeam": "Manchester United",
+      "awayTeam": "Manchester City",
+      "startTime": "2026-09-21T14:00:00.000Z",
+      "endTime": "2026-09-21T15:45:00.000Z"
+    },
+    {
+      "sport": "Football",
+      "homeTeam": "Real Madrid",
+      "awayTeam": "Barcelona",
+      "startTime": "2026-09-25T19:00:00.000Z",
+      "endTime": "2026-09-25T20:45:00.000Z",
+      "homeScore": 0,
+      "awayScore": 0
+    },
+    {
+      "sport": "Basketball",
+      "homeTeam": "LA Lakers",
+      "awayTeam": "Boston Celtics",
+      "startTime": "2026-09-19T23:00:00.000Z",
+      "endTime": "2026-09-20T01:15:00.000Z",
+      "homeScore": 102,
+      "awayScore": 98
+    },
+    {
+      "sport": "Cricket",
+      "homeTeam": "India",
+      "awayTeam": "Australia",
+      "startTime": "2026-10-01T04:00:00.000Z",
+      "endTime": "2026-10-01T11:00:00.000Z"
+    },
+    {
+      "sport": "Tennis",
+      "homeTeam": "Novak Djokovic",
+      "awayTeam": "Carlos Alcaraz",
+      "startTime": "2026-09-22T13:00:00.000Z",
+      "endTime": "2026-09-22T16:00:00.000Z",
+      "homeScore": 2,
+      "awayScore": 1
+    }
+  ],
+  "invalid": [
+    {
+      "description": "missing required 'sport' field",
+      "body": {
+        "homeTeam": "Manchester United",
+        "awayTeam": "Manchester City",
+        "startTime": "2026-09-21T14:00:00.000Z",
+        "endTime": "2026-09-21T15:45:00.000Z"
+      }
+    },
+    {
+      "description": "missing required 'homeTeam' field",
+      "body": {
+        "sport": "Football",
+        "awayTeam": "Manchester City",
+        "startTime": "2026-09-21T14:00:00.000Z",
+        "endTime": "2026-09-21T15:45:00.000Z"
+      }
+    },
+    {
+      "description": "endTime is not after startTime",
+      "body": {
+        "sport": "Football",
+        "homeTeam": "Manchester United",
+        "awayTeam": "Manchester City",
+        "startTime": "2026-09-21T14:00:00.000Z",
+        "endTime": "2026-09-21T13:00:00.000Z"
+      }
+    },
+    {
+      "description": "startTime is not a valid ISO datetime string",
+      "body": {
+        "sport": "Football",
+        "homeTeam": "Manchester United",
+        "awayTeam": "Manchester City",
+        "startTime": "21-09-2026",
+        "endTime": "2026-09-21T15:45:00.000Z"
+      }
+    },
+    {
+      "description": "negative homeScore (must be nonnegative)",
+      "body": {
+        "sport": "Football",
+        "homeTeam": "Manchester United",
+        "awayTeam": "Manchester City",
+        "startTime": "2026-09-21T14:00:00.000Z",
+        "endTime": "2026-09-21T15:45:00.000Z",
+        "homeScore": -1
+      }
+    },
+    {
+      "description": "empty homeTeam string (min length 1)",
+      "body": {
+        "sport": "Football",
+        "homeTeam": "",
+        "awayTeam": "Manchester City",
+        "startTime": "2026-09-21T14:00:00.000Z",
+        "endTime": "2026-09-21T15:45:00.000Z"
+      }
+    }
+  ]
+}
